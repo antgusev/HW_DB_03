@@ -11,7 +11,8 @@ SELECT name_nickname FROM artists
 WHERE NOT name_nickname LIKE '%% %%';
 
 SELECT name FROM tracks
-WHERE name LIKE '%мой%' OR name LIKE '%Мой%' OR name LIKE '%my%' OR name LIKE '%My%';
+WHERE name ILIKE 'мой %' OR name ILIKE '% мой' OR name ILIKE '% мой %' OR name ILIKE 'мой'
+OR name ILIKE 'my %' OR name ILIKE '% my' OR name ILIKE '% my %' OR name ILIKE 'my';
 
 SELECT g.name, COUNT(a.name_nickname) FROM musical_genres AS g
 LEFT JOIN genre_artist AS ga ON g.genre_id = ga.genre_id
@@ -19,22 +20,22 @@ LEFT JOIN artists AS a ON ga.artist_id = a.artist_id
 GROUP BY g.name
 ORDER BY count(a.name_nickname) DESC;
 
-SELECT a.year, COUNT(t.name) FROM albums AS a
+SELECT COUNT(t.name) FROM albums AS a
 LEFT JOIN tracks AS t ON t.album_id = a.album_id
-WHERE a.year BETWEEN 2019 AND 2020
-GROUP BY a.year;
+WHERE a.year BETWEEN 2019 AND 2020;
 
 SELECT a.name, AVG(t.length) FROM albums AS a
 LEFT JOIN tracks AS t ON t.album_id = a.album_id
 GROUP BY a.name
 ORDER BY AVG(t.length);
 
-SELECT DISTINCT ar.name_nickname FROM artists AS ar
-LEFT JOIN album_artist AS aa ON ar.artist_id = aa.artist_id
-LEFT JOIN albums as al on al.album_id = aa.album_id
-WHERE NOT al.year = 2020
-ORDER BY ar.name_nickname;
-
+SELECT name_nickname FROM artists
+WHERE name_nickname NOT IN (
+    SELECT ar.name_nickname FROM artists AS ar
+    LEFT JOIN album_artist AS aa ON ar.artist_id = aa.artist_id
+    LEFT JOIN albums as al on al.album_id = aa.album_id
+    WHERE al.year = 2020);
+ 
 SELECT DISTINCT c.name FROM collections AS c
 LEFT JOIN track_collection AS tc ON c.collection_id = tc.collection_id
 LEFT JOIN tracks AS t ON t.track_id = tc.track_id
